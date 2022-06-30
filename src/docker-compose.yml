@@ -48,6 +48,7 @@ services:
       - DDB_ENDPOINT_OVERRIDE
       - IMAGE_ROOT_URL
       - WEB_ROOT_URL
+      - IMAGE_S3_BUCKET
     build:
       context: ./products
       args:
