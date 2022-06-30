@@ -15,12 +15,23 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/aws/aws-sdk-go/service/rekognition"
+
 	"strconv"
 	"strings"
 )
 
 var imageRootURL = os.Getenv("IMAGE_ROOT_URL")
 var missingImageFile = "product_image_coming_soon.png"
+
+// ConfidenceLabel struct
+type ConfidenceLabel struct {
+	Name       string  `dynamodbav:"name"`
+	Confidence float64 `dynamodbav:"confidence"`
+}
 
 // initResponse
 func initResponse(w *http.ResponseWriter) {
@@ -77,6 +88,70 @@ func fullyQualifyProductImageURLs(r *http.Request, products *Products) {
 	for i := range *products {
 		product := &((*products)[i])
 		fullyQualifyProductImageURL(r, product)
+	}
+}
+
+// detectLabels - Generate labels for input image via AWS Rekognition API
+func detectLabels(image string) []*dynamodb.AttributeValue {
+	// Call Rekognition API
+	result, err := rekognitionClient.DetectLabels(
+		&rekognition.DetectLabelsInput{
+			Image: &rekognition.Image{
+				S3Object: &rekognition.S3Object{
+					Bucket: aws.String(os.Getenv("IMAGE_S3_BUCKET")),
+					Name:   aws.String(image),
+				},
+			},
+			MaxLabels: aws.Int64(10),
+		})
+	if err != nil {
+		fmt.Println("Got error calling DetectLabelsInput:")
+		fmt.Println(err.Error())
+	}
+
+	// Build label structs from Rekognition result
+	var cl []ConfidenceLabel
+	for _, label := range result.Labels {
+		attrv := ConfidenceLabel{
+			Name:       *label.Name,
+			Confidence: *label.Confidence,
+		}
+		cl = append(cl, attrv)
+	}
+	// Convert slice of ConfidenceLabels to slice of AttributeValues
+	list, err := dynamodbattribute.MarshalList(cl)
+	if err != nil {
+		fmt.Println("Got error marshalling:")
+		fmt.Println(err.Error())
+	}
+	// Return list of labels and their confidence
+	return list
+}
+
+// addLabels - Add image labels to a product record in DynamoDB
+func addLabels(p Product) {
+	s3Key := "images/" + p.Category + "/" + p.Image
+
+	// Update the DynamoDB record for the product with labels from Rekognition
+	_, err = dynamoClient.UpdateItem(
+		&dynamodb.UpdateItemInput{
+			ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+				":labels": {
+					L: detectLabels(s3Key),
+				},
+			},
+			TableName: aws.String(ddbTableProducts),
+			Key: map[string]*dynamodb.AttributeValue{
+				"id": {
+					S: aws.String(p.ID),
+				},
+			},
+			ReturnValues:     aws.String("UPDATED_NEW"),
+			UpdateExpression: aws.String("set image_labels = :labels"),
+		})
+	if err != nil {
+		fmt.Println("Got error calling UpdateItem:")
+		fmt.Println(err.Error())
 	}
 }
 
@@ -261,6 +336,7 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	addLabels(product)
 	fullyQualifyProductImageURL(r, &product)
 
 	if err := json.NewEncoder(w).Encode(product); err != nil {
@@ -344,6 +420,7 @@ func NewProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	addLabels(product)
 	fullyQualifyProductImageURL(r, &product)
 
 	if err := json.NewEncoder(w).Encode(product); err != nil {

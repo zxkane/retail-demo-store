@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/rekognition"
 )
 
 var sess, err = session.NewSession(&aws.Config{})
@@ -24,6 +25,7 @@ var ddbEndpointOverride = os.Getenv("DDB_ENDPOINT_OVERRIDE")
 var runningLocal bool
 
 var dynamoClient *dynamodb.DynamoDB
+var rekognitionClient *rekognition.Rekognition
 
 // Initialize clients
 func init() {
@@ -37,8 +39,10 @@ func init() {
 			Endpoint:    aws.String(ddbEndpointOverride),
 		}
 		dynamoClient = dynamodb.New(sess, awsConfig)
+		rekognitionClient = rekognition.New(sess, awsConfig)
 	} else {
 		runningLocal = false
 		dynamoClient = dynamodb.New(sess)
+		rekognitionClient = rekognition.New(sess)
 	}
 }
