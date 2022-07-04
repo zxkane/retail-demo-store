@@ -120,6 +120,22 @@ Resources:
         DBClusterIdentifier: !Ref NeptuneCluster
         DBInstanceClass: db.t3.medium
 
+    LoadNeptuneFromDDBProducts:
+      Type: AWS::Lambda::Function
+      Properties:
+        Description: 'Export all products to Neptune DB instance'
+        Handler: 'main'
+        Role: !GetAtt DyanmoDBNeptuneSyncRole.Arn
+        Runtime: python3.8
+        Timeout: 3
+        Code:
+          S3Bucket: !Ref ResourceBucket
+          S3Key: !Sub '${ResourceBucketRelativePath}aws-lambda/load-neptune-from-ddb-products.zip'
+        Environment:
+          Variables:
+            dynamodb_table: !Ref ProductsTable
+            neptune_endpoint: !Ref NeptuneDBInstance
+
     DynamoDBNeptuneSync:
       Type: AWS::Lambda::Function
       Properties:
