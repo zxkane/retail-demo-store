@@ -103,6 +103,10 @@ items_schema = {
             "name": "GENDER",
             "type": "string",
             "categorical": True
+        },
+        {
+            "name": "IMAGE_LABELS",
+            "type": "string"
         }
     ],
     "version": "1.0"
