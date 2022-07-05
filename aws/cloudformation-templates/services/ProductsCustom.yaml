@@ -152,6 +152,15 @@ Resources:
           Variables:
             neptune_endpoint: !Ref NeptuneDBInstance
 
+    DynamoDBTableStream:
+      Type: AWS::Lambda::EventSourceMapping
+      Properties:
+        BatchSize: 100
+        Enabled: True
+        EventSourceArn: !GetAtt ProductsTable.StreamArn
+        FunctionName: !GetAtt DynamoDBNeptuneSync.Arn
+        StartingPosition: LATEST
+
   CustomLoadDataProducts:
     Type: Custom::CustomLoadData
     Properties:
