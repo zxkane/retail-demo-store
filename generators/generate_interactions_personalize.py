@@ -90,6 +90,16 @@ def generate_user_items(out_users_filename, out_items_filename, in_users_filenam
     with open(in_products_filename, 'r') as f:
         products = yaml.safe_load(f)
 
+    # Personalize only accepts multiple values when separated by | so we have to reformat it
+    for p in range(len(products)):
+        if products[p]['image_labels']:
+            names = []
+            for label in products[p]['image_labels']:
+                # Only include labels with high confidence
+                if label['confidence'] > 75:
+                    names.append(label['name'])
+            products[p]['image_labels'] = '|'.join(names)
+
     products_df = pd.DataFrame(products)
 
     # User info is stored in the repository - it was automatically generated
@@ -100,7 +110,7 @@ def generate_user_items(out_users_filename, out_items_filename, in_users_filenam
 
     users_df = pd.DataFrame(users)
 
-    products_dataset_df = products_df[['id','price','category','style','description','gender_affinity', 'labels']]
+    products_dataset_df = products_df[['id','price','category','style','description','gender_affinity', 'image_labels']]
     products_dataset_df = products_dataset_df.rename(columns = {'id':'ITEM_ID',
                                                             'price':'PRICE',
                                                             'category':'CATEGORY_L1',
