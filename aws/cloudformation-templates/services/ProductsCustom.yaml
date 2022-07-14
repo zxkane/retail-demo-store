@@ -163,6 +163,7 @@ Resources:
       Environment:
         Variables:
           neptune_endpoint: !Ref NeptuneDBInstance
+    DependsOn: CustomLoadNeptuneFromDDB
 
   DynamoDBTableStream:
     Type: AWS::Lambda::EventSourceMapping
@@ -190,6 +191,12 @@ Resources:
       File: !Join [ '', [ !Ref ResourceBucketRelativePath, 'data/categories.yaml' ] ]
       Table: !Ref CategoriesTable
       Datatype: "categories"
+
+  CustomLoadNeptuneFromDDB:
+    Type: Custom::CustomLoadData
+    Properties:
+      ServiceToken: !GetAtt LoadNeptuneFromDDBProducts.Arn
+    DependsOn: LoadDataLambdaFunction
 
 Outputs:
   LoadDataLambdaFunction:
