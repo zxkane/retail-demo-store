@@ -96,6 +96,16 @@ Resources:
                   - dynamodb:ConditionCheckItem
                 Resource:
                   - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ProductsTable}'
+        - PolicyName: CloudWatch
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:PutLogEvents
+                  - logs:CreateLogStream
+                Resource: "arn:aws:logs:*:*:*"
 
   LoadDataLambdaFunction:
     Type: AWS::Lambda::Function
