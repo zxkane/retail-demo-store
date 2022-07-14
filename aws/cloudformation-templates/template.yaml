@@ -538,6 +538,7 @@ Resources:
         EnvOpenSearchDomainEndpoint: !GetAtt Base.Outputs.OpenSearchDomainEndpoint
         PinpointAppId: !GetAtt Base.Outputs.PinpointAppId
         ProductsTable: !GetAtt Base.Outputs.ProductsTable
+        ProductsTableStreamArn: !GetAtt Base.Outputs.ProductsTableStreamArn
         CategoriesTable: !GetAtt Base.Outputs.CategoriesTable
         ExperimentStrategyTable: !GetAtt Base.Outputs.ExperimentStrategyTable
         ParameterPersonalizeEventTrackerId: !GetAtt Base.Outputs.ParameterPersonalizeEventTrackerId

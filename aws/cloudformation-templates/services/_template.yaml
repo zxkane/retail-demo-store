@@ -88,6 +88,10 @@ Parameters:
     Type: String
     Default: none
 
+  ProductsTableStreamArn:
+    Type: String
+    Default: none
+
   CategoriesTable:
     Type: String
     Default: none
@@ -453,6 +457,7 @@ Resources:
         ResourceBucket: !Ref ResourceBucket
         ResourceBucketRelativePath: !Ref ResourceBucketRelativePath
         ProductsTable: !Ref ProductsTable
+        ProductsTableStreamArn: !Ref ProductsTableStreamArn
         CategoriesTable: !Ref CategoriesTable
 
   ####################### Delete Repository Custom Resource #######################

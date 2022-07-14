@@ -20,6 +20,8 @@ Resources:
         - AttributeName: "id"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
       GlobalSecondaryIndexes:
         - IndexName: category-index
           KeySchema:
@@ -92,6 +94,10 @@ Outputs:
   ProductsTable:
     Description: DynamoDB Table for Products
     Value: !Ref ProductsTable
+
+  ProductsTableStreamArn:
+    Description: ARN for the DynamoDB Table stream for Products
+    Value: !GetAtt ProductsTable.StreamArn
 
   CategoriesTable:
     Description: DynamoDB Table for Categories

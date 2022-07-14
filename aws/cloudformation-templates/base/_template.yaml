@@ -382,6 +382,10 @@ Outputs:
     Description: DynamoDB Table for Products
     Value: !GetAtt Tables.Outputs.ProductsTable
 
+  ProductsTableStreamArn:
+    Description: ARN for the DynamoDB Table stream for Products
+    Value: !GetAtt Tables.Outputs.ProductsTableStreamArn
+
   CategoriesTable:
     Description: DynamoDB Table for Categories
     Value: !GetAtt Tables.Outputs.CategoriesTable

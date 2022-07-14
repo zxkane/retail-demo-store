@@ -15,6 +15,9 @@ Parameters:
   ProductsTable:
     Type: String
 
+  ProductsTableStreamArn:
+    Type: String
+
   CategoriesTable:
     Type: String
 
@@ -157,7 +160,7 @@ Resources:
     Properties:
       BatchSize: 100
       Enabled: True
-      EventSourceArn: !GetAtt ProductsTable.StreamArn
+      EventSourceArn: !Ref ProductsTableStreamArn
       FunctionName: !GetAtt DynamoDBNeptuneSync.Arn
       StartingPosition: LATEST
 
