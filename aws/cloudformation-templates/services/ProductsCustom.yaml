@@ -137,7 +137,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Description: 'Retail Demo Store deployment utility function that exports all products from DynamoDB products table to Neptune DB instance'
-      Handler: 'main'
+      Handler: load-neptune-from-ddb-products.lambda_handler
       Role: !GetAtt DyanmoDBNeptuneSyncRole.Arn
       Runtime: python3.8
       Timeout: 3
@@ -148,13 +148,12 @@ Resources:
         Variables:
           dynamodb_table: !Ref ProductsTable
           neptune_endpoint: !Ref NeptuneDBInstance
-      DependsOn: LoadDataLambdaFunction
 
   DynamoDBNeptuneSync:
     Type: AWS::Lambda::Function
     Properties:
       Description: 'Retail Demo Store function to sync Neptune with DynamoDB after product records change'
-      Handler: 'main'
+      Handler: dynamodb-neptune-sync.lambda_handler
       Role: !GetAtt DyanmoDBNeptuneSyncRole.Arn
       Runtime: python3.8
       Timeout: 3
