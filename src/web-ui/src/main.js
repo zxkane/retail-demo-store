@@ -9,6 +9,9 @@ import Amplitude from 'amplitude-js'
 import mParticle from '@mparticle/web-sdk';
 import AmplifyStore from '@/store/store';
 import VueGtag from "vue-gtag";
+import { ClickstreamAnalytics } from "clickstream-js/src";
+import { PageType, SendMode } from "clickstream-js/src/types/Analytics";
+
 
 import './styles/tokens.css'
 
@@ -81,6 +84,14 @@ if (import.meta.env.VITE_MPARTICLE_API_KEY && import.meta.env.VITE_MPARTICLE_API
 Auth.configure(amplifyConfig);
 Analytics.configure(amplifyConfig);
 Interactions.configure(amplifyConfig);
+
+ClickstreamAnalytics.init({
+  appId: 'retailDemoStore',
+  endpoint: 'http://Click-Inges-17CUIYO7DFGIG-1846782007.us-east-1.elb.amazonaws.com/collect',
+  isLogEvents: true,
+  sendMode: SendMode.Batch,
+  pageType: PageType.SPA
+})
 
 const logger = new Logger('main')
 
